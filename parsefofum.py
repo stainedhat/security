@@ -71,8 +71,6 @@ def cleanup(infile, tmpfile):
         if line == "</AP>":
             c.write(line+"\n")
             pass
-        #elif line == '<?xmlversion="1.0"standalone="yes"?>':
-            #pass
         elif line == "<DocumentElement>" or line == "</DocumentElement>":
             pass
         else:
