@@ -4,10 +4,10 @@ import argparse
 import textwrap
 
 #setup argparser
-options = argparse.ArgumentParser(usage='%(prog)s [-h,-o,-d,-u,-p,-t] input', formatter_class=argparse.RawDescriptionHelpFormatter, description=textwrap.dedent("[*] ParseFoFum parses android WiFoFum logs generated in XML format and either outputs the results to a file or stores it in a database. [*]"), epilog='''
+options = argparse.ArgumentParser(usage='%(prog)s [-h/--help,-s,-o,-d,-u,-p,-t] input', formatter_class=argparse.RawDescriptionHelpFormatter, description=textwrap.dedent("[*] ParseFoFum parses android WiFoFum logs generated in XML format and either outputs the results to a file or stores it in a database. [*]"), epilog='''
 Examples: 
   %(prog)s -o output.txt wifofum.xml (Output to file)
-  %(prog)s -d wifofum -u username -p pass -t area1 wifofum.xml (Output to database)''', conflict_handler='resolve')
+  %(prog)s -db -s localhost -d wifofum -u username -p pass -t area1 wifofum.xml (Output to database)''', conflict_handler='resolve')
 #create subgroups
 required = options.add_argument_group("Required", "The input file is required to be in .xml format")
 output = options.add_argument_group("Output", "These options will direct where the program send the output")
@@ -17,9 +17,11 @@ help = options.add_argument_group("Help")
 required.add_argument("input", help="Input file generated from WiFoFum")
 #output args
 output.add_argument("-o","--output", default="output.txt", help="Output of parsed wifi log in text file [default: %(default)s]")
+output.add_argument("-db", "--database", action="store_true", help="Output is put into a mysql database. You need mysql installed and a valid username and password. Args -u and -p are required with this option.")
 output.add_argument("-d", "--db-name", default="wifofum", help="Database name to store results in [default: %(default)s]")
-output.add_argument("-u", "--user", default="wifofum", help="Database username [default: %(default)s]")
-output.add_argument("-p", "--pass", default="wifofum", help="Database password [default: %(default)s]")
+output.add_argument("-u", "--username", help="Database username")
+output.add_argument("-p", "--password", help="Database password")
+output.add_argument("-s", "--server", default="localhost", help="Database server address [default: %(default)s]")
 output.add_argument("-t", "--table", default="found", help="Database table name [default: %(default)s]")
 #help
 help.add_argument("-h", "--help", action="help", help="Show this help message and exit")
@@ -71,10 +73,11 @@ def format_line(line):
     return data
 
 if __name__ == "__main__":
-    if not input_file and output_file:
-        print options.print_help()
+    if args.database is True and args.username is None or args.password is None:
+        #print options.print_help()
+        options.error("-db requires at least a username and password!")
         exit(1)
-    cleanup(input_file, output_file)
-    find_open(output_file)
-
+    #cleanup(input_file, output_file)
+    #find_open(output_file)
+    print args
     
