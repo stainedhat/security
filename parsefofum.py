@@ -164,6 +164,7 @@ def db_conn(db_host, db_user, db_pass):
         print "Connected..."
     except:
         print "Failed to connect to database. Check your username and password!"
+        exit(1)
 #main
 if __name__ == "__main__":
     if args.database is True: 
@@ -183,5 +184,7 @@ if __name__ == "__main__":
     print "\n[+] Parsing completed!\n"
     if args.output:
         print "[+] Check the output file(s) in %s\n" % (os.path.abspath(newdir))
+    elif args.database:
+        print "[+] Data has been entered into the %s database in the %s table\n" % (db_name, db_table)
     
     
