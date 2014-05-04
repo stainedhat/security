@@ -159,7 +159,8 @@ def format_line(line):
 #connect to the database
 def db_conn(db_host, db_user, db_pass):
     try:
-        db = MySQLdb.connect(db_host, db_user, db_pass)
+        conn = MySQLdb.connect(db_host, db_user, db_pass)
+        db = conn.cursor()
         print "Connected..."
     except:
         print "Failed to connect to database. Check your username and password!"
