@@ -73,8 +73,10 @@ tmpfile = "/tmp/parsefofum.tmp"
 if args.database:
     db_name = args.db_name
     db_user = args.username
-    if args.password:
+    if args.password == True:
         db_pass = getpass.getpass()
+    else:
+        db_pass = args.password
     db_host = args.server
     db_table = args.table
 if args.output:
@@ -116,7 +118,7 @@ def cleanup(infile, tmpfile):
 def write_line(d, filename):
     f = open(filename, "a")
     f.write("====================================================================\n")
-    f.write("[+] SSID: "+d["SSID"]+" | Security: "+d["Security"]+" | MAC: "+d["MAC"]+" | Type: "+d["Type"]+" | Channel: "+d["Channel"]+" | RSSI: "+d["RSSI"]+" | Longitude: "+d["Lon"]+" | Lattitude: "+d["Lat"]+" | Altitude: "+d["Altitude"]+" | First Seen: "+d["FirstSeen"]+" | Last Seen: "+d["LastSeen"]+" | HDOP: "+d["HDOP"]+"\n")
+    f.write("[+] SSID: "+d["SSID"]+" | Security: "+d["Security"]+" | MAC: "+d["MAC"]+" | Type: "+d["Type"]+" | Channel: "+d["Channel"]+" | RSSI: "+d["RSSI"]+" | Longitude: "+d["Lon"]+" | Latitude: "+d["Lat"]+" | Altitude: "+d["Altitude"]+" | First Seen: "+d["FirstSeen"]+" | Last Seen: "+d["LastSeen"]+" | HDOP: "+d["HDOP"]+"\n")
     f.write("====================================================================\n")
     f.close()
 
@@ -125,8 +127,7 @@ def parse_line(line):
     d = format_line(line)
     security = d["Security"]
     if args.database:
-        pass
-        #print "Put into database"
+        db_insert(d, db_name, db_table)
     elif args.output:
         if output_all:
             write_line(d, output_all)
@@ -156,22 +157,89 @@ def format_line(line):
         data[key] = value
     return data
 
-#connect to the database
-def db_conn(db_host, db_user, db_pass):
+#create db and table if not exists
+def create_db(dbname, tblname):
+    checkdb = "SELECT schema_name FROM information_schema.schemata WHERE schema_name = '%s';" % (dbname)
+    #try:
+    db.execute(checkdb)
+    data = db.fetchone()
+    if data:
+        print "Database %s exists. Attempting to insert into it!\n" % (dbname)
+    else:
+        try:
+            createdb = "CREATE DATABASE IF NOT EXISTS %s" % (dbname)
+            db.execute(createdb)
+        except:
+            print "failed to create database. Check your settings and permissions and try again!"
+            db.close()
+            exit(1)
+    #check if table exists
+    tablechk = "SHOW TABLES LIKE '%s';" % (tblname)
     try:
-        conn = MySQLdb.connect(db_host, db_user, db_pass)
-        db = conn.cursor()
-        print "Connected..."
+        usedb = "USE %s;" % (dbname)
+        db.execute(usedb)
+        do_chk = db.execute(tablechk)
+        if do_chk:
+            print "[!] Table exists.. attempting to insert data. If it fails you should specify a different table name."
+        else:
+            createtbl = """CREATE TABLE %s (id INT NOT NULL AUTO_INCREMENT, ssid VARCHAR(255) NOT NULL, security VARCHAR(4) NOT NULL, mac VARCHAR(17) NOT NULL, type VARCHAR(50) NOT NULL, channel TINYINT NOT NULL, rssi VARCHAR(5) NOT NULL, longitude VARCHAR(25) NOT NULL, latitude VARCHAR(25) NOT NULL, altitude VARCHAR(7) NOT NULL, first_seen VARCHAR(28) NOT NULL, last_seen VARCHAR(28) NOT NULL, hdop VARCHAR(4) NOT NULL, UNIQUE (mac), PRIMARY KEY (id))""" % (tblname)
+            db.execute(createtbl)
+            conn.commit()
     except:
-        print "Failed to connect to database. Check your username and password!"
+        "Failed to verify or create the table! Exiting... "
         exit(1)
+
+#function to insert lines into the db. input is a dict from format_line
+def db_insert(d, dbname, tblname):
+    usedb = "USE %s;" % (dbname)
+    db.execute(usedb)
+    for key in d.keys():
+        d[key] = re.sub(r"[%_']", "", d[key]) #cleanup some sql chars
+    sql = ''' INSERT INTO %s (ssid, security, mac, type, channel, rssi, latitude, longitude, altitude, first_seen, last_seen, hdop) VALUES ('%s', '%s', '%s', '%s', %s, '%s', '%s', '%s', '%s', '%s', '%s', '%s')''' % (tblname, d["SSID"], d["Security"], d["MAC"], d["Type"], int(d["Channel"]), d["RSSI"], d["Lon"], d["Lat"], d["Altitude"], d["FirstSeen"], d["LastSeen"], d["HDOP"])
+    try:
+        db.execute(sql)
+        conn.commit()
+    except MySQLdb.ProgrammingError, e:
+        conn.rollback()
+        print e
+        print "\n[!] Error inserting into the database! Exiting now...\n"
+        exit(1)
+    except MySQLdb.IntegrityError, e:
+        detect_dup = re.search(r"Duplicate entry", e[1])
+        if detect_dup:
+            print "\n[!] Error inserting into the database! This MAC address already exists!"
+            print "SSID: %s | MAC: %s" % (d["SSID"], d["MAC"])
+            while True:
+                confirm = raw_input("Would you like to update the entry? (y/n): ")
+                if confirm == "y" or confirm == "n":
+                    break
+            if confirm == "y":
+                update = "UPDATE %s SET ssid='%s', security = '%s', type = '%s', channel = %d, rssi = '%s', longitude = '%s', latitude = '%s', altitude = '%s', first_seen = '%s', last_seen = '%s', hdop = '%s' where mac = '%s'" % (tblname, d["SSID"], d["Security"], d["Type"], int(d["Channel"]), d["RSSI"], d["Lon"], d["Lat"], d["Altitude"], d["FirstSeen"], d["LastSeen"], d["HDOP"], d["MAC"])
+                try:
+                    db.execute(update)
+                    conn.commit()
+                except:
+                    print "[!] Error updating database entry!"
+        else:
+            print e+" \n [!] Exiting..."
+            exit(1)
+
 #main
 if __name__ == "__main__":
     if args.database is True: 
         if args.username is None or args.password is None:
             options.error("-db requires at least a username and password!")
             exit(1)
-        db_conn(db_host, db_user, db_pass)
+
+        try:
+            conn = MySQLdb.connect(db_host, db_user, db_pass)
+            db = conn.cursor()
+            print "\n[+] Connected to the database..."
+        except:
+            print "Failed to connect to database. Check your username and password!"
+            exit(1)
+        create_db(db_name, db_table)
+#start processing
     cleanup(input_file, tmpfile)
     with open(tmpfile, "r") as f:
         for i in f:
@@ -185,6 +253,7 @@ if __name__ == "__main__":
     if args.output:
         print "[+] Check the output file(s) in %s\n" % (os.path.abspath(newdir))
     elif args.database:
-        print "[+] Data has been entered into the %s database in the %s table\n" % (db_name, db_table)
+        print "[+] Data has been entered into the %s database in a table named %s \n" % (db_name, db_table)
+        db.close()
     
     
