@@ -1,4 +1,11 @@
 #!/usr/bin/python
+
+################################################################
+# Feel free to copy and use this code or share it with others. #
+# Do not charge for it and if you re-use it please just link   #
+# back here. Thanks! Johnny_b14z3                              #
+################################################################
+
 import re
 import os
 import argparse
