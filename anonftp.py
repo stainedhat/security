@@ -8,15 +8,17 @@ import binascii
 #actually make the login attempt
 def anonLogin(hostname):
     try:
-        ftp = ftplib.FTP(hostname)
+        ftp = ftplib.FTP()
+        ftp.connect(hostname, 21, 10)
         email = binascii.b2a_hex(os.urandom(3)) + '@' + binascii.b2a_hex(os.urandom(3)) + '.com'
         ftp.login('anonymous', email)
-        print "\n[*] " + str(hostname) + ': Anon FTP login succeeded!'
+        print "\n[*] " + str(hostname) + ': Anon FTP login succeeded!\n'
         ftp.quit()
         if ofile:
             ofile.write(hostname + "\n")
         return True
     except Exception, e:
+        print e #".",
         return False
 
 #called when a list is provided then iterates through the list and call anonLogin()
@@ -29,6 +31,7 @@ def hitlist(list):
     f = open(list, 'r')
     for line in f.readlines():
         line = line.strip('\n').strip('\r')
+        print "[+] Trying " + line
         anonLogin(line)
 
 def main():
@@ -46,12 +49,13 @@ def main():
     if outfile:
         if os.path.isfile(outfile):
             overwrite = raw_input("[!] File exists! Are you sure you want to continue? If you do the existing file will be overwritten! (y/n): ")
-            if overwite == "y" or overwrite == "Y" or overwrite == "Yes":
+            if overwrite == "y" or overwrite == "Y" or overwrite == "Yes":
                 pass
             else:
                 print "[!] Exiting now!"
                 exit()
         #open the output file
+        global ofile 
         ofile = open(outfile, 'a')
     
     #
@@ -62,6 +66,7 @@ def main():
     
     #check args and decide whether to handle a list or single ip then 
     #actually start the login attempts
+    print "[!] Testing Anonymous FTP Login.."
     if list: hitlist(list)
     if target: anonLogin(target)
     
