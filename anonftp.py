@@ -60,7 +60,7 @@ def brute_worker(ip_queue, user_queue, pass_queue, found_queue, timeout):
         pass
 
 #called when a anon is provided with a list then iterates through the list and calls anonLogin()
-def anonlist(list, timeout, threads):
+def anonlist(iplist, timeout, threads):
     #setup queues and threads
     ip_queue = Queue()
     found_queue = Queue()
@@ -68,14 +68,14 @@ def anonlist(list, timeout, threads):
     processes = []
     
     #build ip_queue
-    if os.path.isfile(list):
-        f = open(list, 'r')
+    if os.path.isfile(iplist):
+        f = open(iplist, 'r')
         for line in f.readlines():
             line = line.strip('\n').strip('\r')
             ip_queue.put(line)
         f.close()
     else: 
-        print "List '%s' not found. Check path and try again!" % list
+        print "List '%s' not found. Check path and try again!" % iplist
         exit(0)
     
     #start threads
@@ -175,7 +175,7 @@ Brute Force login: %(prog)s -b -t 10 -i 192.168.0.100 -u admin -p pass_list.txt 
     brute = parser.add_argument_group("Brute Force", "Options for FTP brute force testing")
     general = parser.add_argument_group("General options", "Fine tune timing, threads, and output")
     required.add_argument('-i', '--ip', help="Check a single target IP")
-    required.add_argument('-l', '--list', help="Check all targets in a list. List should be one target IP per line")
+    required.add_argument('-l', '--list', dest='iplist', help="Check all targets in a list. List should be one target IP per line")
     general.add_argument('-o', '--outfile', help="Output found targets to a file")
     general.add_argument('-t', '--threads', default=5, type=int, help="Number of threads to use for scanning [default: 5]")
     general.add_argument('-n', '--timeout', default=10, type=int, help="Check a single target IP [default: 10]")
@@ -189,7 +189,7 @@ Brute Force login: %(prog)s -b -t 10 -i 192.168.0.100 -u admin -p pass_list.txt 
     #assign args to variables
     args = parser.parse_args()
     ip = args.ip
-    list = args.list
+    iplist = args.iplist
     threads = args.threads
     timeout = args.timeout
     global outfile
@@ -214,7 +214,7 @@ Brute Force login: %(prog)s -b -t 10 -i 192.168.0.100 -u admin -p pass_list.txt 
                 exit()
     
     #check to make sure user has specified target(s) and attack type
-    if (ip == None and list == None) or (not args.anon and not args.brute):
+    if (ip == None and iplist == None) or (not args.anon and not args.brute):
         parser.print_help()
         exit(0)
     
@@ -222,7 +222,7 @@ Brute Force login: %(prog)s -b -t 10 -i 192.168.0.100 -u admin -p pass_list.txt 
     #actually start the login attempts
     if args.anon:
         print "[!] Testing Anonymous FTP Login.."
-        if list: anonlist(list, timeout, threads)
+        if iplist: anonlist(iplist, timeout, threads)
         if ip: anonLogin(ip, timeout)
     if args.brute:
         if (not userlist or not username) or not passlist:
