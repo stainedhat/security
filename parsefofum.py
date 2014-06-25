@@ -52,9 +52,7 @@ outfiles.add_argument("-open","--open", default="open.txt", help="Any results wi
 help.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 
 args = options.parse_args()
-global y
-if args.yes:
-    y = True
+
 #do some file checking and create an output directory
 input_file = args.input
 
