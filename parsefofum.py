@@ -48,7 +48,7 @@ outfiles.add_argument("-wpa","--wpa", default="wpa.txt", help="Any results with 
 outfiles.add_argument("-wpa2","--wpa2", default="wpa2.txt", help="Any results with security type of WPA2 will be stored in this file. [default: %(default)s]")
 outfiles.add_argument("-wep","--wep", default="wep.txt", help="Any results with security type of WEP will be stored in this file. [default: %(default)s]")
 outfiles.add_argument("-open","--open", default="open.txt", help="Any results with no security will be stored in this file. [default: %(default)s]")
-#help
+##help
 help.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 
 args = options.parse_args()
