@@ -41,6 +41,7 @@ dbopts.add_argument("-u", "--username", help="Database username. This is require
 dbopts.add_argument("-p", "--password", action="store_true", help="Required to connect to the db. D0 NOT SUPPLY ON COMMAND LINE!! You will be prompted for the password when you use -p or --password")
 dbopts.add_argument("-s", "--server", default="127.0.0.1", help="Database server address [default: %(default)s]")
 dbopts.add_argument("-t", "--table", default="found", help="Database table name [default: %(default)s]")
+dbopts.add_argument("-y", "--yes", action="store_true", help="Automatically update all existing db entries")
 #output file options
 outfiles.add_argument("-a","--all", help="All results will be stored in this file.")
 outfiles.add_argument("-wpa","--wpa", default="wpa.txt", help="Any results with security type of WPA will be stored in this file. [default: %(default)s]")
@@ -51,7 +52,9 @@ outfiles.add_argument("-open","--open", default="open.txt", help="Any results wi
 help.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 
 args = options.parse_args()
-
+global y
+if args.yes:
+    y = True
 #do some file checking and create an output directory
 input_file = args.input
 
@@ -189,7 +192,7 @@ def create_db(dbname, tblname):
         if do_chk:
             print "[!] Table exists.. attempting to insert data. If it fails you should specify a different table name."
         else:
-            createtbl = """CREATE TABLE %s (id INT NOT NULL AUTO_INCREMENT, ssid VARCHAR(255) NOT NULL, security VARCHAR(4) NOT NULL, mac VARCHAR(17) NOT NULL, type VARCHAR(50) NOT NULL, channel TINYINT NOT NULL, rssi VARCHAR(5) NOT NULL, longitude VARCHAR(25) NOT NULL, latitude VARCHAR(25) NOT NULL, altitude VARCHAR(7) NOT NULL, first_seen VARCHAR(28) NOT NULL, last_seen VARCHAR(28) NOT NULL, hdop VARCHAR(4) NOT NULL, UNIQUE (mac), PRIMARY KEY (id))""" % (tblname)
+            createtbl = """CREATE TABLE %s (id INT NOT NULL AUTO_INCREMENT, ssid VARCHAR(255) NOT NULL, security VARCHAR(4) NOT NULL, mac VARCHAR(17) NOT NULL, type VARCHAR(50) NOT NULL, channel TINYINT NOT NULL, rssi VARCHAR(5) NOT NULL, latitude VARCHAR(25) NOT NULL, longitude VARCHAR(25) NOT NULL, altitude VARCHAR(7) NOT NULL, first_seen VARCHAR(28) NOT NULL, last_seen VARCHAR(28) NOT NULL, hdop VARCHAR(4) NOT NULL, UNIQUE (mac), PRIMARY KEY (id))""" % (tblname)
             db.execute(createtbl)
             conn.commit()
     except:
@@ -214,22 +217,25 @@ def db_insert(d, dbname, tblname):
     except MySQLdb.IntegrityError, e:
         detect_dup = re.search(r"Duplicate entry", e[1])
         if detect_dup:
-            print "\n[!] Error inserting into the database! This MAC address already exists!"
-            print "SSID: %s | MAC: %s" % (d["SSID"], d["MAC"])
-            while True:
-                confirm = raw_input("Would you like to update the entry? (y/n): ")
-                if confirm == "y" or confirm == "n":
-                    break
-            if confirm == "y":
+            if args.yes:
                 update = "UPDATE %s SET ssid='%s', security = '%s', type = '%s', channel = %d, rssi = '%s', longitude = '%s', latitude = '%s', altitude = '%s', first_seen = '%s', last_seen = '%s', hdop = '%s' where mac = '%s'" % (tblname, d["SSID"], d["Security"], d["Type"], int(d["Channel"]), d["RSSI"], d["Lon"], d["Lat"], d["Altitude"], d["FirstSeen"], d["LastSeen"], d["HDOP"], d["MAC"])
-                try:
-                    db.execute(update)
-                    conn.commit()
-                except:
-                    print "[!] Error updating database entry!"
-        else:
-            print e+" \n [!] Exiting..."
-            exit(1)
+            else:
+                print "\n[!] Error inserting into the database! This MAC address already exists!"
+                print "SSID: %s | MAC: %s" % (d["SSID"], d["MAC"])
+                while True:
+                    confirm = raw_input("Would you like to update the entry? (y/n): ")
+                    if confirm == "y" or confirm == "n":
+                        break
+                if confirm == "y":
+                    update = "UPDATE %s SET ssid='%s', security = '%s', type = '%s', channel = %d, rssi = '%s', longitude = '%s', latitude = '%s', altitude = '%s', first_seen = '%s', last_seen = '%s', hdop = '%s' where mac = '%s'" % (tblname, d["SSID"], d["Security"], d["Type"], int(d["Channel"]), d["RSSI"], d["Lon"], d["Lat"], d["Altitude"], d["FirstSeen"], d["LastSeen"], d["HDOP"], d["MAC"])
+                else:
+                    print e + "\n [!] Exiting..."
+                    exit(0)
+            try:
+                db.execute(update)
+                conn.commit()
+            except:
+                print "[!] Error updating database entry!"
 
 #main
 if __name__ == "__main__":
