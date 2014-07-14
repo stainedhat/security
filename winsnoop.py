@@ -68,7 +68,7 @@ def main():
     outfolder = args.outfolder
 
     #setup output folder
-    if not output:
+    if not outfolder:
         home = os.getenv("USERPROFILE")
         outfolder = "%s\\AppData\\Local\\Temp\\winsnoop\\" % (home)
     try:
