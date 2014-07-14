@@ -15,7 +15,7 @@ def getmac(mac):
 def findWifiInfo():
     ssids = {}
     reg = "SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Signatures\Unmanaged"
-    key = OpenKey(HKEY_LOCAL_MACHINE, reg)
+    key = OpenKey(HKEY_LOCAL_MACHINE, reg, 0, KEY_READ | KEY_WOW64_64KEY)
     for i in range(100):
         try:
             guid = EnumKey(key, i)
@@ -97,7 +97,9 @@ def main():
                 f.write("SSID: %s MAC: %s \n" % (i, ssids[i]))
                 f.close()
                 print "SSID: %s MAC: %s " % (i, ssids[i])
-    
+
+if __name__ == "__main__":
+    main()
 
 
 
