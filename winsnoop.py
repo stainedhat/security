@@ -34,23 +34,21 @@ def findWifiInfo():
 def exportWifiProfiles(outfolder):
     passwords = {}
     try:
-        os.system("netsh wlan export profile key=clear folder=\"%s\\\"" % outdir)
-        print "[*] Wifi profiles have been exported to %s" % (outdir)
+        os.system("netsh wlan export profile key=clear folder=\"%s\\\"" % outfolder)
+        print "[*] Wifi profiles have been exported to %s" % (outfolder)
     except:
         print "[!] Could not export profiles!"
         return
-    for root, dirs, file in os.walk(outdir):
+    for root, dirs, files in os.walk(outfolder):
         for file in files:
             if "Wi-Fi" in file:
                 file = outfolder + file
                 tree = ET.parse(file)
                 root = tree.getroot()
                 ssid = str(root[0].text.strip())
-                print "[*] SSID: %s" % (ssid),
                 for i in root.iter():
                     if "keyMaterial" in str(i):
                         passwords[ssid] = i.text
-                        print " Password: %s" % (i.text)
     return passwords
 
 def main():
