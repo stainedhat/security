@@ -33,28 +33,24 @@ def findWifiInfo():
 
 def exportWifiProfiles(outfolder):
     passwords = {}
-    if outfolder == "default":
-        home = os.getenv("USERPROFILE")
-        outdir = "%s\\AppData\\Local\\Temp\\winsnoop\\" % (home)
-    else:
-        outdir = outfolder
-
     try:
-        os.system("netsh wlan export profile key=clear folder=\"%s\"" % outdir)
+        os.system("netsh wlan export profile key=clear folder=\"%s\\\"" % outdir)
         print "[*] Wifi profiles have been exported to %s" % (outdir)
     except:
         print "[!] Could not export profiles!"
         return
     for root, dirs, file in os.walk(outdir):
-        if "Wi-Fi" in file:
-            tree = ET.parse(file)
-            root = tree.getroot()
-            ssid = str(root[0].text.strip())
-            print "[*] SSID: %s" % (ssid),
-            for i in root.iter():
-                if "keyMaterial" in str(i):
-                    passwords[ssid] = i.text
-                    print " Password: %s" % (i.text)
+        for file in files:
+            if "Wi-Fi" in file:
+                file = outfolder + file
+                tree = ET.parse(file)
+                root = tree.getroot()
+                ssid = str(root[0].text.strip())
+                print "[*] SSID: %s" % (ssid),
+                for i in root.iter():
+                    if "keyMaterial" in str(i):
+                        passwords[ssid] = i.text
+                        print " Password: %s" % (i.text)
     return passwords
 
 def main():
