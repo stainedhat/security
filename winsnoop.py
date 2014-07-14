@@ -83,16 +83,19 @@ def main():
         outfile = "Wifi_info.txt"
         outpath = outfolder + outfile
         for i in ssids.keys():
-            if passwords[i]:
-                f = open(r"%s" % (outpath), "a+")
-                f.write("SSID: %s MAC: %s Password: %s \n" % (i, ssids[i], passwords[i]))
-                f.close()
-                print "SSID: %s MAC: %s Password: %s " % (i, ssids[i], passwords[i])
-            else:
-                f = open(r"%s" % (outpath), "a+")
-                f.write("SSID: %s MAC: %s \n" % (i, ssids[i]))
-                f.close()
-                print "SSID: %s MAC: %s " % (i, ssids[i])
+            try:
+                if passwords[i]:
+                    f = open(r"%s" % (outpath), "a+")
+                    f.write("SSID: %s MAC: %s Password: %s \n" % (i, ssids[i], passwords[i]))
+                    f.close()
+                    print "SSID: %s MAC: %s Password: %s " % (i, ssids[i], passwords[i])
+                else:
+                    f = open(r"%s" % (outpath), "a+")
+                    f.write("SSID: %s MAC: %s \n" % (i, ssids[i]))
+                    f.close()
+                    print "SSID: %s MAC: %s " % (i, ssids[i])
+            except:
+                pass
 
 if __name__ == "__main__":
     main()
