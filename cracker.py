@@ -11,6 +11,7 @@ def extractZip(zip, password):
         zfile.extractall(pwd=password)
         print '[+] Found password: ' + password + '\n'
         zfile.close()
+        exit()
     except:
         zfile.close()
 
@@ -19,6 +20,7 @@ def openPdf(pdfile, password):
         pdf = pyPdf.PdfFileReader(open(pdf))
         pdf.decrypt(password)  
         print '[+] Found password: ' + password + '\n'
+        exit()
     except:
         pass
     
