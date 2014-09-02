@@ -111,9 +111,13 @@ def gethistory(places, outtype, ofile):
     if outtype == "console":
         print '[!] Browser History '
         for row in cur:
-            print '[+] Page title: ', row[1]
-            print '\tURL: ', str(row[0])
-            print '\tTimes visited: ' + str(row[2]) + "\t Last visited: " + str(row[3])
+            title = u'%s' % row[1]
+            url = u'%s' % row[0]
+            numvisits = u'%s' % row[2]
+            lastvisit = u'%s' % row[3]
+            print '[+] Page title: ', title
+            print '\tURL: ', url
+            print '\tTimes visited: ' + numvisits + "\t Last visited: " + lastvisit
     elif outtype == "file":
         f = open(ofile, 'a')
         f.write('[!] Browser History \n')
