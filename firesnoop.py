@@ -118,9 +118,13 @@ def gethistory(places, outtype, ofile):
         f = open(ofile, 'a')
         f.write('[!] Browser History \n')
         for row in cur:
-            f.write('[+] Page title: %s \n' % row[1])
-            f.write('\tURL: %s \n' % str(row[0]))
-            f.write('\tTimes visited: %s \t %s \n' % (str(row[2]), str(row[3])))
+            title = u'%s' % row[1]
+            url = u'%s' % row[0]
+            numvisits = u'%s' % row[2]
+            lastvisit = u'%s' % row[3]
+            f.write('[+] Page title: %s \n' % title.encode('utf8'))
+            f.write('\tURL: %s \n' % url.encode('utf8'))
+            f.write('\tTimes visited: %s \t Last Visited: %s \n' % (numvisits.encode('utf8'), lastvisit.encode('utf8')))
 
 
 if __name__ == '__main__':
@@ -171,6 +175,11 @@ if __name__ == '__main__':
                 placesdb = os.path.join(profile, 'places.sqlite')
                 cookiesdb = os.path.join(profile, 'cookies.sqlite')
                 formsdb = os.path.join(profile, 'formhistory.sqlite')
+                if outfile:
+                    file = open(outfile, 'a')
+                    file.write("=" * 25)
+                    file.write("Gathering data on profile %s...\n" % profile)
+                    file.close()
                 if urls:
                     gethistory(placesdb, output, outfile)
                 if cookies:
@@ -179,6 +188,10 @@ if __name__ == '__main__':
                     getgooglesearches(placesdb, output, outfile)
                 if forms:
                     getformhistory(formsdb, output, outfile)
+                if outfile:
+                    f = open(outfile, 'a')
+                    f.write("=" * 25)
+                    f.close()
             else:
                 print "[!] Error! The profile you specified does not exist! "
                 print "[!] Specify the entire path of the profile folder!"
@@ -197,6 +210,11 @@ if __name__ == '__main__':
             for p in profiles:
                 user = profiles[p]
                 path = os.path.join('C:\\', 'Users', user, 'AppData', 'Roaming', 'Mozilla', 'Firefox', 'Profiles', p)
+                if outfile:
+                    file = open(outfile, 'a')
+                    file.write("=" * 25)
+                    file.write("Gathering data on %s from profile %s...\n" % (user, p))
+                    file.close()
                 print "Gathering data on %s from profile %s..." % (user, p)
                 placesdb = os.path.join(path, 'places.sqlite')
                 cookiesdb = os.path.join(path, 'cookies.sqlite')
@@ -209,6 +227,10 @@ if __name__ == '__main__':
                     getgooglesearches(placesdb, output, outfile)
                 if forms:
                     getformhistory(formsdb, output, outfile)
+                if outfile:
+                    file = open(outfile, 'a')
+                    file.write("=" * 25)
+                    file.close()
 
     if systemos == 'Linux':
         profiles = {}
@@ -226,6 +248,11 @@ if __name__ == '__main__':
         for p in profiles:
             user = profiles[p]
             path = os.path.join('/', 'home', user, '.mozilla', 'firefox', p)
+            if outfile:
+                    file = open(outfile, 'a')
+                    file.write("=" * 25)
+                    file.write("Gathering data on %s from profile %s...\n" % (user, p))
+                    file.close()
             print "Gathering data on %s from profile %s..." % (user, p)
             placesdb = os.path.join(path, 'places.sqlite')
             cookiesdb = os.path.join(path, 'cookies.sqlite')
@@ -238,3 +265,7 @@ if __name__ == '__main__':
                 getgooglesearches(placesdb, output, outfile)
             if forms:
                 getformhistory(formsdb, output, outfile)
+            if outfile:
+                    file = open(outfile, 'a')
+                    file.write("=" * 25)
+                    file.close()
