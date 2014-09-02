@@ -100,7 +100,7 @@ def getformhistory(formfile, outtype, ofile):
         if len(gsearches) > 0:
             f.write("[+] Google searches found \n")
             for search in gsearches:
-                f.write("Search term: %s \n" % search)
+                f.write("\tSearch term: %s \n" % search)
         f.close()
 
 
@@ -115,8 +115,8 @@ def gethistory(places, outtype, ofile):
             url = u'%s' % row[0]
             numvisits = u'%s' % row[2]
             lastvisit = u'%s' % row[3]
-            print '[+] Page title: ', title
-            print '\tURL: ', url
+            print '[+] Page title: ', title.encode('utf8')
+            print '\tURL: ', url.encode('utf8')
             print '\tTimes visited: ' + numvisits + "\t Last visited: " + lastvisit
     elif outtype == "file":
         f = open(ofile, 'a')
