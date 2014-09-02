@@ -176,10 +176,10 @@ if __name__ == '__main__':
                 cookiesdb = os.path.join(profile, 'cookies.sqlite')
                 formsdb = os.path.join(profile, 'formhistory.sqlite')
                 if outfile:
-                    file = open(outfile, 'a')
-                    file.write("=" * 25)
-                    file.write("Gathering data on profile %s...\n" % profile)
-                    file.close()
+                    out = open(outfile, 'a')
+                    out.write("=" * 25)
+                    out.write("Gathering data on profile %s...\n" % profile)
+                    out.close()
                 if urls:
                     gethistory(placesdb, output, outfile)
                 if cookies:
@@ -189,9 +189,9 @@ if __name__ == '__main__':
                 if forms:
                     getformhistory(formsdb, output, outfile)
                 if outfile:
-                    f = open(outfile, 'a')
-                    f.write("=" * 25)
-                    f.close()
+                    out = open(outfile, 'a')
+                    out.write("=" * 25)
+                    out.close()
             else:
                 print "[!] Error! The profile you specified does not exist! "
                 print "[!] Specify the entire path of the profile folder!"
@@ -211,10 +211,10 @@ if __name__ == '__main__':
                 user = profiles[p]
                 path = os.path.join('C:\\', 'Users', user, 'AppData', 'Roaming', 'Mozilla', 'Firefox', 'Profiles', p)
                 if outfile:
-                    file = open(outfile, 'a')
-                    file.write("=" * 25)
-                    file.write("Gathering data on %s from profile %s...\n" % (user, p))
-                    file.close()
+                    out = open(outfile, 'a')
+                    out.write("=" * 25)
+                    out.write("Gathering data on %s from profile %s...\n" % (user, p))
+                    out.close()
                 print "Gathering data on %s from profile %s..." % (user, p)
                 placesdb = os.path.join(path, 'places.sqlite')
                 cookiesdb = os.path.join(path, 'cookies.sqlite')
@@ -228,9 +228,9 @@ if __name__ == '__main__':
                 if forms:
                     getformhistory(formsdb, output, outfile)
                 if outfile:
-                    file = open(outfile, 'a')
-                    file.write("=" * 25)
-                    file.close()
+                    out = open(outfile, 'a')
+                    out.write("=" * 25)
+                    out.close()
 
     if systemos == 'Linux':
         profiles = {}
@@ -249,10 +249,10 @@ if __name__ == '__main__':
             user = profiles[p]
             path = os.path.join('/', 'home', user, '.mozilla', 'firefox', p)
             if outfile:
-                    file = open(outfile, 'a')
-                    file.write("=" * 25)
-                    file.write("Gathering data on %s from profile %s...\n" % (user, p))
-                    file.close()
+                    out = open(outfile, 'a')
+                    out.write("=" * 25)
+                    out.write("Gathering data on %s from profile %s...\n" % (user, p))
+                    out.close()
             print "Gathering data on %s from profile %s..." % (user, p)
             placesdb = os.path.join(path, 'places.sqlite')
             cookiesdb = os.path.join(path, 'cookies.sqlite')
@@ -266,6 +266,6 @@ if __name__ == '__main__':
             if forms:
                 getformhistory(formsdb, output, outfile)
             if outfile:
-                    file = open(outfile, 'a')
-                    file.write("=" * 25)
-                    file.close()
+                    out = open(outfile, 'a')
+                    out.write("=" * 25)
+                    out.close()
