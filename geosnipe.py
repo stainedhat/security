@@ -4,9 +4,7 @@ import pygeoip
 import whois
 import argparse
 import re
-
-geodat = '/opt/geoip/GeoliteCity.dat'
-geodb = pygeoip.GeoIP(geodat)
+import os
 
 
 def geosnipe(tgt):
@@ -38,9 +36,9 @@ def parsewhois(searchstring, whodata):
 
 def whoistarget(tgt):
     w = whois.whois(tgt)
-    reg = {}
-    admin = {}
-    tech = {}
+    reg = dict()
+    admin = dict()
+    tech = dict()
     reg['name'] = parsewhois('Registrant Name', w)
     reg['org'] = parsewhois('Registrant Organization', w)
     reg['phone'] = parsewhois('Registrant Phone', w)
@@ -65,7 +63,7 @@ def whoistarget(tgt):
     tech['city'] = parsewhois('Tech City', w)
     tech['state'] = parsewhois('Tech State/Province', w)
     tech['country'] = parsewhois('Tech Country', w)
-    print "[!] Whois data for %s" % tgt
+    print "\n[!] Whois data for %s" % tgt
     print "\tDomain Name: \t%s" % w.domain_name[0]
     print "\tCreated on: \t%s" % w.creation_date[1]
     print "\tUpdated on: \t%s" % w.updated_date[1]
@@ -94,17 +92,49 @@ def whoistarget(tgt):
     print "\t\t\t%s, %s. %s" % (tech['city'], tech['state'], tech['country'])
 
 
-parser = argparse.ArgumentParser()
+#Setup argparse options
+parser = argparse.ArgumentParser(conflict_handler='resolve')
 main = parser.add_argument_group('Target Options')
-main.add_argument('-t', '--target', required=True, help='Enter a target to geolocate')
+main.add_argument('-t', '--target', help='Enter a target to geolocate')
 main.add_argument('-w', '--whois', dest='who', action="store_true", help='Get whois data on the target')
+main.add_argument('-d', '--dat', dest='dat', help='Specify a GeoIP dat file')
+main.add_argument('-h', '--help', dest='help', action='store_true', help='Show this message and exit')
 
+#Assign args
 args = parser.parse_args()
-
 target = args.target
 who = args.who
+dat = args.dat
+h = args.help
+geodat = ''
+
+#Check if help was specified
+if h:
+    parser.print_help()
+    exit(0)
+
+#Check for target
+if not target:
+    parser.print_help()
+    print "\n[!] Error, you need to specify a target with -t\n"
+    exit(1)
+
+#Check id dat was specified and validate as a file
+if dat:
+    if os.path.isfile(dat):
+        geodat = dat
+    else:
+        print "\n[!] Error! The dat file you specified does not exist! Check the path and try again!"
+        exit(1)
+else:
+    #hardcoded for my system
+    #this file can be downloaded from http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
+    geodat = '/opt/geoip/GeoLiteCity.dat'
+
+geodb = pygeoip.GeoIP(geodat)
 
 if __name__ == '__main__':
+
     if who:
         whoistarget(target)
         geosnipe(target)
