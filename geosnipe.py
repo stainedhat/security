@@ -106,7 +106,10 @@ def whoistarget(tgt, ofile, o):
     else:
         domain = False
     if w.creation_date:
-        created = w.creation_date[1]
+        try:
+            created = w.creation_date[1]
+        except TypeError:
+            created = w.creation_date
     else:
         created = False
     if w.updated_date:
@@ -117,7 +120,10 @@ def whoistarget(tgt, ofile, o):
     else:
         updated = False
     if w.expiration_date:
-        expires = w.expiration_date[1]
+        try:
+            expires = w.expiration_date[1]
+        except TypeError:
+            expires = w.expiration_date
     else:
         expires = False
     if w.registrar:
