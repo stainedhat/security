@@ -191,31 +191,35 @@ try:
         shell = False
 
     #main
-    if target:
-        url = checkurl(target)
-        if url:
-            if scan:
-                checkvuln1(url)
-            elif scan2:
-                checkvuln2(url, shell)
-            else:
-                cmdinjection(url, command)
-    elif targetlist:
-        with open(targetlist, 'r') as f:
-            for t in f:
-                url = checkurl(t)
-                if url:
-                    if scan:
-                        checkvuln1(url)
-                    elif scan2:
-                        checkvuln2(url, shell)
-                    else:
-                        cmdinjection(url, command)
-    if targets:
-        print "Printing a list of targets: "
-        count = 1
-        for t in targets:
-            print "%d ) %s" % (count, t)
-            count += 1
+    def main():
+        if target:
+            url = checkurl(target)
+            if url:
+                if scan:
+                    checkvuln1(url)
+                elif scan2:
+                    checkvuln2(url, shell)
+                else:
+                    cmdinjection(url, command)
+        elif targetlist:
+            with open(targetlist, 'r') as f:
+                for t in f:
+                    url = checkurl(t)
+                    if url:
+                        if scan:
+                            checkvuln1(url)
+                        elif scan2:
+                            checkvuln2(url, shell)
+                        else:
+                            cmdinjection(url, command)
+        if targets:
+            print "Printing a list of targets: "
+            count = 1
+            for t in targets:
+                print "%d ) %s" % (count, t)
+                count += 1
+
+    if __name__ == "__main__":
+        main()
 except KeyboardInterrupt:
     exit(1)
