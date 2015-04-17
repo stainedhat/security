@@ -6,10 +6,6 @@ import sys
 import argparse
 from urlparse import urlparse
 
-# Check to make sure we have a target
-if len(sys.argv) <= 1:
-    print("I need a hostname or IP address!")
-    sys.exit()
 
 # This is the generic socket object that sends the exploit
 def exploit(payload, victim):
