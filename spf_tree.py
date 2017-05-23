@@ -5,7 +5,6 @@ import json
 class SPFNotFound(Exception):
     pass
 
-
 class SPFTree:
     def __init__(self):
         self.results = None
@@ -194,7 +193,7 @@ class SPFTree:
 mbo = SPFTree()
 
 # Parse the domain
-mbo.parse_spf("mindbodyonline.com")
+mbo.parse_spf("somedomain.com")
 
 # Pretty print that shit!
 mbo.print_spf_tree()
