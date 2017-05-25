@@ -190,10 +190,10 @@ class SPFTree:
 
 ###### Using it #######
 # Create the object
-mbo = SPFTree()
+spf = SPFTree()
 
 # Parse the domain
-mbo.parse_spf("somedomain.com")
+spf.parse_spf("somedomain.com")
 
 # Pretty print that shit!
-mbo.print_spf_tree()
+spf.print_spf_tree()
